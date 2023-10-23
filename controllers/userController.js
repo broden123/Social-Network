@@ -2,7 +2,7 @@ const User = require("../models/User");
 const Thought = require("../models/Thought");
 
 module.exports = {
-  //find all users
+  // find all users
   async getUsers(req, res) {
     try {
       const users = await User.find();
@@ -11,7 +11,7 @@ module.exports = {
       res.status(500).json(err);
     }
   },
-  //find a single user
+  // find a single user
   async getSingleUser(req, res) {
     try {
       const user = await User.findOne({ _id: req.params.userId }).select(
@@ -36,7 +36,7 @@ module.exports = {
       res.status(500).json(err);
     }
   },
-  //update a user
+  // update a user
   async updateUser(req, res) {
     try {
       const result = await User.findOneAndUpdate(
@@ -72,6 +72,40 @@ module.exports = {
       console.log(`Deleted: ${userdel} and their thoughts!`);
     } catch (err) {
       res.status(500).json(err);
+    }
+  },
+  //add friend
+  async addFriend(req, res) {
+    try {
+      const addFriends = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        {
+          $push: { friends: req.body.friendsId },
+        },
+        { new: true }
+      );
+      res.status(200).json(addFriends);
+      console.log(`Added Friend: ${addFriends}`);
+    } catch (err) {
+      console.log("Something went wrong");
+      res.status(500).json({ error: "Something went wrong" });
+    }
+  },
+  // delete friend
+  async deleteFriend(req, res) {
+    try {
+      const deleteFriends = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        {
+          $pull: { friends: req.body.friendsId },
+        },
+        { new: true }
+      );
+      res.status(200).json(deleteFriends);
+      console.log(`Deleted Friend: ${deleteFriends}`);
+    } catch (err) {
+      console.log("Something went wrong");
+      res.status(500).json({ error: "Something went wrong" });
     }
   },
 };
