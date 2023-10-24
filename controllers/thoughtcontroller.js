@@ -15,15 +15,15 @@ module.exports = {
   // find a single thought
   async getSingleThought(req, res) {
     try {
-      const thought = await Thought.findOne({
+      const singlethought = await Thought.findOne({
         _id: req.params.thoughtId,
       }).select("-__v");
 
-      if (!thought) {
+      if (!singlethought) {
         return res.status(404).json({ message: "No thought with that ID" });
       }
 
-      res.status(200).json(thought);
+      res.status(200).json(singlethought);
     } catch (err) {
       console.log("Something went wrong");
       res.status(500).json(err);
@@ -35,17 +35,15 @@ module.exports = {
       const dbThoughtData = await Thought.create({
         thoughtText: req.body.thoughtText,
         username: req.body.username,
-        userId: req.body.userId,
       });
-      const addThought = await User.findOneAndUpdate(
-        { _id: req.body.userId },
+      const dbUserDataUpdate = await User.findOneAndUpdate(
+        { username: req.body.username },
         {
-          $push: { thoughts: req.body.thoughtId },
+          $push: { thoughts: dbThoughtData._id },
         },
         { new: true }
       );
-      res.status(200).json(dbThoughtData);
-      res.status(200).json(addThought);
+      res.status(200).json(dbUserDataUpdate);
       console.log(`Created: ${dbThoughtData}`);
     } catch (err) {
       console.log("Something went wrong");
@@ -79,16 +77,15 @@ module.exports = {
       if (!deleteThought) {
         return res.status(404).json({ message: "No thought with that ID" });
       }
-      const deleteFromUser = await User.findOneAndUpdate(
+      await User.findOneAndUpdate(
         { _id: req.params.userId },
         {
-          $pull: { thought: req.body.thoughtId },
+          $pull: { thought: req.params.thoughtId },
         },
         { new: true }
       );
-      res.status(200).json(deleteThought);
-      res.status(200).json(deleteFromUser);
-      console.log(`Deleted: ${deleteThought}`);
+      res.status(200).json({ message: "Thought deleted!" });
+      console.log("Deleted thought!");
     } catch (err) {
       console.log("Something went wrong");
       res.status(500).json(err);
@@ -119,15 +116,18 @@ module.exports = {
   // delete reaction
   async deleteReactions(req, res) {
     try {
-      const deleteReactions = await Thought.findOneAndUpdate(
+      await Thought.findOneAndUpdate(
         { _id: req.params.thoughtId },
         {
-          $pull: { reactions: req.body.reactionId },
-        },
-        { new: true }
+          $pull: {
+            reactions: {
+              _id: req.params.reactionId,
+            },
+          },
+        }
       );
-      res.status(200).json(deleteReactions);
-      console.log(`Deleted Reaction: ${deleteReactions}`);
+      res.status(200).json({ message: "Reaction deleted!" });
+      console.log(`Deleted Reaction`);
     } catch (err) {
       console.log("Something went wrong");
       res.status(500).json(err);

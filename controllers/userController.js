@@ -15,15 +15,15 @@ module.exports = {
   // find a single user
   async getSingleUser(req, res) {
     try {
-      const user = await User.findOne({ _id: req.params.userId }).select(
+      const singleuser = await User.findOne({ _id: req.params.userId }).select(
         "-__v"
       );
 
-      if (!user) {
+      if (!singleuser) {
         return res.status(404).json({ message: "No user with that ID" });
       }
 
-      res.status(200).json(user);
+      res.status(200).json(singleuser);
     } catch (err) {
       console.log("Something went wrong");
       res.status(500).json(err);
@@ -70,12 +70,12 @@ module.exports = {
       if (!userDelete) {
         return res.status(404).json({ message: "No user with that ID" });
       }
-      const thoughtDel = await Thought.deleteMany({
-        username: req.params.userId,
-      });
-      res.status(200).json(userDelete);
-      res.status(200).json(thoughtDel);
-      console.log(`Deleted: ${userDelete} and their thoughts!`);
+      // need to add way to find username from userID for this to work
+      // await Thought.deleteMany({
+      //   username: req.params.userId,
+      // });
+      res.status(200).json({ message: "Deleted User" });
+      console.log(`Deleted User`);
     } catch (err) {
       console.log("Something went wrong");
       res.status(500).json(err);
@@ -87,7 +87,7 @@ module.exports = {
       const addFriends = await User.findOneAndUpdate(
         { _id: req.params.userId },
         {
-          $push: { friends: req.body.friendId },
+          $push: { friends: req.params.friendId },
         },
         { new: true }
       );
@@ -104,7 +104,7 @@ module.exports = {
       const deleteFriends = await User.findOneAndUpdate(
         { _id: req.params.userId },
         {
-          $pull: { friends: req.body.friendId },
+          $pull: { friends: req.params.friendId },
         },
         { new: true }
       );
