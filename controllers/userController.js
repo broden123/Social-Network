@@ -82,7 +82,7 @@ module.exports = {
     }
   },
   // add a friend
-  async addFriend(req, res) {
+  async addFriends(req, res) {
     try {
       const addFriends = await User.findOneAndUpdate(
         { _id: req.params.userId },
@@ -99,7 +99,7 @@ module.exports = {
     }
   },
   // delete a friend
-  async deleteFriend(req, res) {
+  async deleteFriends(req, res) {
     try {
       const deleteFriends = await User.findOneAndUpdate(
         { _id: req.params.userId },

@@ -95,7 +95,7 @@ module.exports = {
     }
   },
   // add reaction
-  async addReaction(req, res) {
+  async addReactions(req, res) {
     try {
       const addReactions = await Thought.findOneAndUpdate(
         { _id: req.params.thoughtId },
@@ -117,7 +117,7 @@ module.exports = {
     }
   },
   // delete reaction
-  async deleteReaction(req, res) {
+  async deleteReactions(req, res) {
     try {
       const deleteReactions = await Thought.findOneAndUpdate(
         { _id: req.params.thoughtId },
