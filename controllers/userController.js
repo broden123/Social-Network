@@ -6,8 +6,9 @@ module.exports = {
   async getUsers(req, res) {
     try {
       const users = await User.find();
-      res.json(users);
+      res.status(200).json(users);
     } catch (err) {
+      console.log("Something went wrong");
       res.status(500).json(err);
     }
   },
@@ -22,24 +23,29 @@ module.exports = {
         return res.status(404).json({ message: "No user with that ID" });
       }
 
-      res.json(user);
+      res.status(200).json(user);
     } catch (err) {
+      console.log("Something went wrong");
       res.status(500).json(err);
     }
   },
   // create a new user
   async createUser(req, res) {
     try {
-      const dbUserData = await User.create(req.body);
-      res.json(dbUserData);
+      const dbUserData = await User.create({
+        username: req.body.username,
+        email: req.body.email,
+      });
+      res.status(200).json(dbUserData);
     } catch (err) {
+      console.log("Something went wrong");
       res.status(500).json(err);
     }
   },
   // update a user
   async updateUser(req, res) {
     try {
-      const result = await User.findOneAndUpdate(
+      const updateUsers = await User.findOneAndUpdate(
         { _id: req.params.userId },
         {
           username: req.body.username,
@@ -47,8 +53,8 @@ module.exports = {
         },
         { new: true }
       );
-      res.status(200).json(result);
-      console.log(`Updated: ${result}`);
+      res.status(200).json(updateUsers);
+      console.log(`Updated: ${updateUsers}`);
     } catch (err) {
       console.log("Something went wrong");
       res.status(500).json({ error: "Something went wrong" });
@@ -57,30 +63,31 @@ module.exports = {
   // delete a user and their thoughts
   async deleteUser(req, res) {
     try {
-      const userdel = await User.findOneAndDelete({
+      const userDelete = await User.findOneAndDelete({
         _id: req.params.userId,
       }).select("-__v");
 
-      if (!userdel) {
+      if (!userDelete) {
         return res.status(404).json({ message: "No user with that ID" });
       }
       const thoughtDel = await Thought.deleteMany({
         username: req.params.userId,
       });
-      res.status(200).json(userdel);
+      res.status(200).json(userDelete);
       res.status(200).json(thoughtDel);
-      console.log(`Deleted: ${userdel} and their thoughts!`);
+      console.log(`Deleted: ${userDelete} and their thoughts!`);
     } catch (err) {
+      console.log("Something went wrong");
       res.status(500).json(err);
     }
   },
-  //add friend
+  // add a friend
   async addFriend(req, res) {
     try {
       const addFriends = await User.findOneAndUpdate(
         { _id: req.params.userId },
         {
-          $push: { friends: req.body.friendsId },
+          $push: { friends: req.body.friendId },
         },
         { new: true }
       );
@@ -88,16 +95,16 @@ module.exports = {
       console.log(`Added Friend: ${addFriends}`);
     } catch (err) {
       console.log("Something went wrong");
-      res.status(500).json({ error: "Something went wrong" });
+      res.status(500).json(err);
     }
   },
-  // delete friend
+  // delete a friend
   async deleteFriend(req, res) {
     try {
       const deleteFriends = await User.findOneAndUpdate(
         { _id: req.params.userId },
         {
-          $pull: { friends: req.body.friendsId },
+          $pull: { friends: req.body.friendId },
         },
         { new: true }
       );
@@ -105,7 +112,7 @@ module.exports = {
       console.log(`Deleted Friend: ${deleteFriends}`);
     } catch (err) {
       console.log("Something went wrong");
-      res.status(500).json({ error: "Something went wrong" });
+      res.status(500).json(err);
     }
   },
 };
